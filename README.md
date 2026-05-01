@@ -1,3 +1,15 @@
+---
+title: Cross-Paper Contradiction Agent
+emoji: 📚
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Surface and diagnose contradictions across research papers.
+---
+
 # Cross-Paper Contradiction Agent
 
 An AI agent that **doesn't synthesize** research papers — it makes them argue.
@@ -32,87 +44,50 @@ Both findings are correct — for different populations.
 **Recommendation:** Cite both, specifying the population and time horizon.
 ```
 
-## Requirements
+## Run on Hugging Face Spaces
 
-- Python 3.10+
-- [Ollama](https://ollama.com) running locally with a model pulled
+This repo is ready to deploy as a **Docker Space**.
 
-## Setup
+1. Create a new Space → SDK: **Docker**.
+2. Push this repository to the Space's git remote.
+3. In **Settings → Variables and secrets**, add a secret:
+   - `GROQ_API_KEY` = your key from https://console.groq.com/keys
+4. (Optional) override the default model with a public variable:
+   - `GROQ_MODEL` = `llama-3.3-70b-versatile`
+5. The Space builds the `Dockerfile` and exposes the Flask UI on port `7860`.
 
 ```bash
-# 1. Clone / navigate to the project
-cd CPC_agent
+# Push to a Space (after creating it on the HF website)
+git remote add space https://huggingface.co/spaces/<your-user>/<space-name>
+git push space main
+```
 
-# 2. Install Python dependencies
+## Run locally
+
+```bash
 pip install -r requirements.txt
-
-# 3. Install Ollama and pull a model
-# Download Ollama: https://ollama.com
-ollama pull qwen2.5:7b-instruct   # recommended
-# or: ollama pull llama3.1:8b
-
-# 4. Start Ollama (if not already running as a service)
-ollama serve
-
-# 5. (Optional) copy .env.example to configure model/host
-cp .env.example .env
-```
-
-## Web UI
-
-A local web interface is available — no CLI needed.
-
-```bash
+echo "GROQ_API_KEY=sk-..." > .env
 python webapp.py
-# then open http://localhost:5000
+# open http://localhost:7860
 ```
-
-Features: drag-and-drop PDF upload, live model selection from Ollama, animated phase-by-phase progress, rendered contradiction map in the browser, one-click download.
 
 ## CLI usage
 
 ```bash
-# Basic
+# Basic (≥ 2 PDFs)
 python main.py paper1.pdf paper2.pdf paper3.pdf
 
 # With topic label
 python main.py --topic "intermittent fasting" papers/*.pdf
 
 # Override model
-python main.py --model llama3.1:8b paper1.pdf paper2.pdf
+python main.py --model llama-3.1-8b-instant paper1.pdf paper2.pdf
 
 # Custom output directory
 python main.py --output-dir ./results paper1.pdf paper2.pdf
 ```
 
 Output is saved to `output/contradiction_map_<timestamp>.md`.
-
-## Recent fixes
-
-The following logic issues were fixed during review:
-
-- **The clustering fallback could split a two-claim comparison into two singleton clusters.**
-  Action taken: when only two claims are present and HDBSCAN finds no structure, the fallback now keeps them in the same cluster so contradiction detection can still run.
-- **Conflict investigation only compared the first two papers in a cluster.**
-  Action taken: investigation now aggregates pairwise comparisons across all paper pairs inside a flagged cluster before producing the final diagnosis.
-- **Multi-paper contradictions could therefore be underdiagnosed or misdiagnosed.**
-  Action taken: the final diagnostic summary now uses evidence from the whole cluster instead of an arbitrary first pair.
-
-Practical implication:
-
-- Two-paper runs are less likely to miss obvious conflicts.
-- Three-or-more-paper runs now preserve more of the disagreement structure in the final contradiction map.
-
-### Web UI fixes
-
-The local web interface was also improved:
-
-- **Rendered markdown and warning messages were too trusting.**
-  Action taken: markdown output and dynamic error content are now sanitized or escaped before entering the DOM.
-- **Uploaded files with the same filename could collide on disk.**
-  Action taken: uploaded PDFs are now stored with unique generated prefixes.
-- **Ollama model validation was too permissive.**
-  Action taken: the selected model must now match an actual available model name exactly.
 
 ## Pipeline
 
@@ -136,18 +111,29 @@ Phase 5 — Build Map     Render structured Markdown contradiction map
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
-| `OLLAMA_MODEL` | `qwen2.5:7b-instruct` | Model for all LLM calls |
+| `GROQ_API_KEY` | *(required)* | Groq API key — set as a Space secret |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Model used for all LLM calls |
+| `CPC_OUTPUT_DIR` | `./output` | Where the Markdown report is written |
+| `PORT` | `7860` | Port the Flask UI binds to |
+| `HOST` | `0.0.0.0` | Bind address |
 
-Set via `.env` file or environment variables.
+Available Groq models (curated list shown in the UI dropdown):
+`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `openai/gpt-oss-20b`,
+`openai/gpt-oss-120b`, `moonshotai/kimi-k2-instruct`, `qwen/qwen3-32b`.
 
 ## Tech stack
 
 - **LangGraph** — multi-phase pipeline orchestration
-- **Ollama** — local LLM inference (zero API costs)
-- **sentence-transformers** — local embeddings (`all-MiniLM-L6-v2`)
+- **Groq** — fast hosted LLM inference
+- **sentence-transformers** — embeddings (`all-MiniLM-L6-v2`)
 - **HDBSCAN** — density-based claim clustering
 - **PyMuPDF** — PDF text extraction
 - **Pydantic v2** — structured output validation
-- **Flask** — local web UI server
+- **Flask** — web UI server
 - **Rich** — terminal output
+
+## Notes on reliability
+
+- The clustering fallback keeps 2-claim runs in the same cluster instead of splitting them into singletons, so contradiction detection still runs.
+- Investigation aggregates pairwise comparisons across **all** paper pairs in a flagged cluster (not just the first pair).
+- The web UI sanitizes rendered markdown, escapes dynamic warnings, stores uploads with unique filenames, and validates model names exactly against the curated list.

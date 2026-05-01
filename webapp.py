@@ -1,3 +1,4 @@
+import os
 import uuid
 import threading
 import tempfile
@@ -207,9 +208,11 @@ def api_result(job_id):
 
 
 if __name__ == "__main__":
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "7860"))
     print("\n" + "=" * 50)
     print("  CPC Agent — Web UI")
-    print("  Open: http://localhost:5000")
-    print("  Prerequisite: GROQ_API_KEY in .env")
+    print(f"  Listening on http://{host}:{port}")
+    print("  Prerequisite: GROQ_API_KEY env var (or .env)")
     print("=" * 50 + "\n")
-    app.run(debug=False, port=5000, threaded=True)
+    app.run(host=host, debug=False, port=port, threaded=True)
