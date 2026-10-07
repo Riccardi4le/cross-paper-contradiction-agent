@@ -21,7 +21,7 @@ Nello Space appena creato → **Settings → Variables and secrets**:
   - Value: la tua chiave da https://console.groq.com/keys
 
 (Opzionale) **New variable** pubblica:
-- `GROQ_MODEL` = `llama-3.3-70b-versatile`
+- `GROQ_MODEL` = `openai/gpt-oss-120b`
 
 ## 3. Push del codice
 

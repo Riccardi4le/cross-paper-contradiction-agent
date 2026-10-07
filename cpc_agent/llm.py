@@ -20,7 +20,8 @@ def get_client() -> Groq:
                 "Get a free key at https://console.groq.com/keys"
             )
             sys.exit(1)
-        _client = Groq(api_key=GROQ_API_KEY)
+        # Free tier has tight per-minute token limits: let the SDK back off on 429s.
+        _client = Groq(api_key=GROQ_API_KEY, max_retries=6)
     return _client
 
 

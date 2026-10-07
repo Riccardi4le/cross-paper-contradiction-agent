@@ -404,7 +404,7 @@
         <div class="form-group">
           <label>AI Model (Groq)</label>
           <select id="model-select">
-            <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+            <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
           </select>
           <div class="hint">Bigger models → better diagnoses. Groq is fast on all of them.</div>
         </div>
@@ -542,7 +542,7 @@
           const opt = document.createElement("option");
           opt.value = m;
           opt.textContent = m;
-          if (m === "llama-3.3-70b-versatile") opt.selected = true;
+          if (m === "openai/gpt-oss-120b") opt.selected = true;
           select.appendChild(opt);
         });
       } else {

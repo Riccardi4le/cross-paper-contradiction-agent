@@ -53,7 +53,7 @@ This repo is ready to deploy as a **Docker Space**.
 3. In **Settings → Variables and secrets**, add a secret:
    - `GROQ_API_KEY` = your key from https://console.groq.com/keys
 4. (Optional) override the default model with a public variable:
-   - `GROQ_MODEL` = `llama-3.3-70b-versatile`
+   - `GROQ_MODEL` = `openai/gpt-oss-120b`
 5. The Space builds the `Dockerfile` and exposes the Flask UI on port `7860`.
 
 ```bash
@@ -81,7 +81,7 @@ python main.py paper1.pdf paper2.pdf paper3.pdf
 python main.py --topic "intermittent fasting" papers/*.pdf
 
 # Override model
-python main.py --model llama-3.1-8b-instant paper1.pdf paper2.pdf
+python main.py --model openai/gpt-oss-20b paper1.pdf paper2.pdf
 
 # Custom output directory
 python main.py --output-dir ./results paper1.pdf paper2.pdf
@@ -112,14 +112,13 @@ Phase 5 — Build Map     Render structured Markdown contradiction map
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `GROQ_API_KEY` | *(required)* | Groq API key — set as a Space secret |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Model used for all LLM calls |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Model used for all LLM calls |
 | `CPC_OUTPUT_DIR` | `./output` | Where the Markdown report is written |
 | `PORT` | `7860` | Port the Flask UI binds to |
 | `HOST` | `0.0.0.0` | Bind address |
 
 Available Groq models (curated list shown in the UI dropdown):
-`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `openai/gpt-oss-20b`,
-`openai/gpt-oss-120b`, `moonshotai/kimi-k2-instruct`, `qwen/qwen3-32b`.
+`openai/gpt-oss-120b` (default, best diagnoses) and `openai/gpt-oss-20b` (faster).
 
 ## Tech stack
 
