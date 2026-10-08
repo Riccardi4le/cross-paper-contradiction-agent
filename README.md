@@ -14,6 +14,8 @@ short_description: Surface and diagnose contradictions across research papers.
 
 An AI agent that **doesn't synthesize** research papers — it makes them argue.
 
+**Live demo:** https://riccardi4le-paper-verifier-suite.hf.space/cpc/ — part of the [Paper Verifier Suite](https://github.com/Riccardi4le/paper-verifier-suite)
+
 Given N papers on the same topic, it extracts empirical claims, clusters them by theme, detects where papers conflict, and **diagnoses why**: different methodology? different population? definitional mismatch? genuine scientific conflict?
 
 ## What makes it different
